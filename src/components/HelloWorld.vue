@@ -85,8 +85,10 @@
 </template>
 
 <script>
+  import taskService from '../services/taskService'
   export default {
     data: () => ({
+      QuizAppProgressStatuses: [],
       ecosystem: [
         {
           text: 'vuetify-loader',
@@ -138,7 +140,13 @@
         }
 
       ]
-    })
+    }),
+    async mounted () {
+      console.log('mounted')
+      this.QuizAppProgressStatuses = await taskService.getQuizAppProgressStatus()
+      let test = await taskService.getQuizAppProgressStatus()
+      console.log(test)
+    }
   }
 </script>
 
