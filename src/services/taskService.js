@@ -1,4 +1,4 @@
-import uuidV4 from 'uuid/v4'
+// import uuidV4 from 'uuid/v4'
 import { API, graphqlOperation } from 'aws-amplify'
 export default {
   async getQuizAppProgressStatus () {
@@ -17,10 +17,33 @@ export default {
   /* todo 以下修正 */
   async createQuizAppProgressStatus() {
     const createQuizAppProgressStatus = `
-    mutation createTask($id: ID!, $num: Int!, status: String!) {
-      createTask(
+    mutation createQuizAppProgressStatus($num: Int!, $status: String!) {
+      createQuizAppProgressStatus(
         input: {
-          id: $id, title: $title, completed: $completed
+          num: $num, status: $status
+        }
+      ) {
+        num
+        status
+      }
+    }
+    `
+    const quizAppProgressStatusDetails = {
+      // id: uuidV4(),
+      num: 1,
+      status: 'Q'
+    }
+    const newTask = await API.graphql(graphqlOperation(createQuizAppProgressStatus, quizAppProgressStatusDetails))
+    return newTask
+  },
+  async updateQuizAppProgressStatus(taskDetails) {
+    const updateQuizAppProgressStatus = `
+    mutation updateQuizAppProgressStatus($id: ID!, $num: Int!, $status: String!) {
+      updateQuizAppProgressStatus(
+        input: {
+          id: $id
+          num: $num
+          status: $status
         }
       ) {
         id
@@ -29,32 +52,8 @@ export default {
       }
     }
     `
-    const quizAppProgressStatusDetails = {
-      id: uuidV4(),
-      num: 1,
-      status: 'Q'
-    }
-    const newTask = await API.graphql(graphqlOperation(createQuizAppProgressStatus, quizAppProgressStatusDetails))
-    return newTask
-  },
-  async updateTask(taskDetails) {
-    const updateTask = `
-    mutation updateTask($id: ID!, $title: String!, $completed: Boolean!) {
-      updateTask(
-        input: {
-          id: $id
-          title: $title
-          completed: $completed
-        }
-      ) {
-        id
-        title
-        completed
-      }
-    }
-    `
-const updatedTask = await API.graphql(graphqlOperation(updateTask, taskDetails))
-    return updatedTask
+    const updatedQuizAppProgressStatus = await API.graphql(graphqlOperation(updateQuizAppProgressStatus, taskDetails))
+    return updatedQuizAppProgressStatus
   },
   async deleteTask(taskId) {
     const deleteTask = `
@@ -68,9 +67,41 @@ const updatedTask = await API.graphql(graphqlOperation(updateTask, taskDetails))
       }
     }
     `
-const taskDetails = {
+    const taskDetails = {
       id: taskId
     }
-return API.graphql(graphqlOperation(deleteTask, taskDetails))
+    return API.graphql(graphqlOperation(deleteTask, taskDetails))
+  },
+  async onCreateQuizAppProgressStatus(callback) {
+    const subscriptionQuizAppProgressStatus = `subscription onCreateQuizAppProgressStatus {
+      onCreateQuizAppProgressStatus {
+        id
+        num
+        status
+      }
+    }`
+    const subscription = API.graphql(graphqlOperation(subscriptionQuizAppProgressStatus))
+      .subscribe({
+        next: function () {
+          callback()
+        }
+      })
+    return subscription
+  },
+  async onUpdateQuizAppProgressStatus(callback) {
+    const subscriptionQuizAppProgressStatus = `subscription onUpdateQuizAppProgressStatus {
+      onUpdateQuizAppProgressStatus {
+        id
+        num
+        status
+      }
+    }`
+    const subscription = API.graphql(graphqlOperation(subscriptionQuizAppProgressStatus))
+      .subscribe({
+        next: function () {
+          callback()
+        }
+      })
+    return subscription
   }
 }

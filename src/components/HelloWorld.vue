@@ -14,6 +14,9 @@
       </v-flex>
 
       <v-flex mb-4>
+        <div v-for="item in QuizAppProgressStatuses" v-bind:key="item.id">
+          id: {{item.id}} num:{{item.num}} status:{{item.status}}
+        </div>
         <h1 class="display-2 font-weight-bold mb-3">
           Welcome to Vuetify
         </h1>
@@ -22,6 +25,8 @@
           <br>please join our online
           <a href="https://community.vuetifyjs.com" target="_blank">Discord Community</a>
         </p>
+        <button v-on:click="createQuizAppProgressStatus">test</button>
+        <button v-on:click="updateQuizAppProgressStatus">update</button>
       </v-flex>
 
       <v-flex
@@ -142,10 +147,26 @@
       ]
     }),
     async mounted () {
-      console.log('mounted')
       this.QuizAppProgressStatuses = await taskService.getQuizAppProgressStatus()
-      let test = await taskService.getQuizAppProgressStatus()
-      console.log(test)
+      taskService.onCreateQuizAppProgressStatus(this.getQuizAppProgressStatus)
+      taskService.onUpdateQuizAppProgressStatus(this.getQuizAppProgressStatus)
+    },
+    methods: {
+      async createQuizAppProgressStatus () {
+        let status = await taskService.createQuizAppProgressStatus()
+        console.log(status)
+      },
+      async getQuizAppProgressStatus () {
+        this.QuizAppProgressStatuses = await taskService.getQuizAppProgressStatus()
+      },
+      async updateQuizAppProgressStatus () {
+        let quizAppProgressStatus = {
+          id: '831e2d01-d3d0-4fc5-a067-5ada10ee0198',
+          num: 51,
+          status: 'Q'
+        }
+        await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
+      }
     }
   }
 </script>
