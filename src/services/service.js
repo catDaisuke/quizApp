@@ -132,10 +132,10 @@ export default {
     const updatedQuizAppMember = await API.graphql(graphqlOperation(updateQuizAppMember, member))
     return updatedQuizAppMember
   },
-  async deleteTask(taskId) {
-    const deleteTask = `
-    mutation deleteTask($id: ID!) {
-      deleteTask(
+  async deleteQuizAppProgressStatus(id) {
+    const deleteQuizAppProgressStatus = `
+    mutation deleteQuizAppProgressStatus($id: ID!) {
+      deleteQuizAppProgressStatus(
         input: {
           id: $id
         }
@@ -145,9 +145,9 @@ export default {
     }
     `
     const taskDetails = {
-      id: taskId
+      id: id
     }
-    return API.graphql(graphqlOperation(deleteTask, taskDetails))
+    return API.graphql(graphqlOperation(deleteQuizAppProgressStatus, taskDetails))
   },
   async onCreateQuizAppProgressStatus(callback) {
     const subscriptionQuizAppProgressStatus = `subscription onCreateQuizAppProgressStatus {
@@ -168,6 +168,22 @@ export default {
   async onUpdateQuizAppProgressStatus(callback) {
     const subscriptionQuizAppProgressStatus = `subscription onUpdateQuizAppProgressStatus {
       onUpdateQuizAppProgressStatus {
+        id
+        num
+        status
+      }
+    }`
+    const subscription = API.graphql(graphqlOperation(subscriptionQuizAppProgressStatus))
+      .subscribe({
+        next: function () {
+          callback()
+        }
+      })
+    return subscription
+  },
+  async onDeleteQuizAppProgressStatus(callback) {
+    const subscriptionQuizAppProgressStatus = `subscription onDeleteQuizAppProgressStatus {
+      onDeleteQuizAppProgressStatus {
         id
         num
         status

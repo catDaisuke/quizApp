@@ -70,7 +70,8 @@
       QuizAppProgressStatuses: [],
       QuizAppMembers: [],
       QuizAppQuestions: [],
-      radioGroup: 1
+      radioGroup: 1,
+      ansQuestionCount: 0
     }),
     computed: {
       isRegistered() {
@@ -90,6 +91,7 @@
 
       taskService.onCreateQuizAppProgressStatus(this.getQuizAppProgressStatus)
       taskService.onUpdateQuizAppProgressStatus(this.getQuizAppProgressStatus)
+      taskService.onDeleteQuizAppProgressStatus(this.getQuizAppProgressStatus)
       taskService.onCreateQuizAppMember(this.getQuizAppMembers)
       taskService.onUpdateQuizAppMember(this.getQuizAppMembers)
     },
@@ -127,16 +129,21 @@
       },
       async ansQuestion () {
         /* 回答比較 */
-        let target = this.QuizAppMembers.find((member) => {return member.userId === this.userId})
-        console.log(target)
-        if(this.QuizAppQuestions[this.QuizAppProgressStatuses[0].num -1].ans === this.radioGroup) {
-          let member = {
-            id: target.id,
-            userId:this.userId,
-            password: this.password,
-            score: target.score + 1
+        if(this.ansQuestionCount < this.QuizAppProgressStatuses[0].num) {
+          let target = this.QuizAppMembers.find((member) => {return member.userId === this.userId})
+          console.log(target)
+          if(this.QuizAppQuestions[this.QuizAppProgressStatuses[0].num -1].ans === this.radioGroup) {
+            let member = {
+              id: target.id,
+              userId:this.userId,
+              password: this.password,
+              score: target.score + 1
+            }
+            await taskService.updateQuizAppMember(member)
+            this.ansQuestionCount = this.QuizAppProgressStatuses[0].num
+          } else {
+            alert('回答済みです')
           }
-          await taskService.updateQuizAppMember(member)
         }
       }
     }

@@ -42,8 +42,9 @@
           <td>{{ props.item.userId }}</td>
           <td class="text-xs-right">{{ props.item.score }}</td>
         </template>
-  </v-data-table>
+        </v-data-table>
         <v-layout justify-center>
+                <v-btn color="success"  v-on:click="reset">リセット</v-btn>
         </v-layout>
       </v-flex>
 
@@ -51,7 +52,6 @@
         xs12
         mb-5
       >
-
         <v-layout justify-center>
         </v-layout>
       </v-flex>
@@ -104,7 +104,9 @@
         return false
       },
       nowQuestion() {
-        if(this.QuizAppProgressStatuses.length !== 0 && this.QuizAppQuestions.length >= this.QuizAppProgressStatuses[0].num) {
+        /* クイズ開始ステータス時は設問と選択肢を返却 */
+        if(this.QuizAppProgressStatuses.length === 1 &&
+         this.QuizAppQuestions.length >= this.QuizAppProgressStatuses[0].num) {
           return this.QuizAppQuestions[this.QuizAppProgressStatuses[0].num-1]
         } else {
           let contents = {
@@ -130,6 +132,7 @@
 
       taskService.onCreateQuizAppProgressStatus(this.getQuizAppProgressStatus)
       taskService.onUpdateQuizAppProgressStatus(this.getQuizAppProgressStatus)
+      taskService.onDeleteQuizAppProgressStatus(this.getQuizAppProgressStatus)
       taskService.onCreateQuizAppMember(this.getQuizAppMembers)
       taskService.onUpdateQuizAppMember(this.getQuizAppMembers)
     },
@@ -175,6 +178,14 @@
           await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
         } else {
           alert('回答オープン済みです')
+        }
+      },
+      async reset() {
+        alert('reset')
+        if(this.QuizAppProgressStatuses.length > 0) {
+          for(let status of this.QuizAppProgressStatuses) {
+            await taskService.deleteQuizAppProgressStatus(status.id)
+          }
         }
       }
     }
