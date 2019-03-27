@@ -5,46 +5,37 @@
       wrap
     >
       <v-flex xs12>
-        <v-img
-          :src="require('../assets/logo.svg')"
-          class="my-3"
-          contain
-          height="200"
-        ></v-img>
+        <div v-if="!isRegistered">
+          <v-text-field label="ユーザーID" v-model="userId"></v-text-field>
+          <v-text-field label="パスワード" v-model="password"></v-text-field>
+          <v-btn color="success" v-on:click="register">登録・ログイン</v-btn>
+        </div>
+        <div v-if="isRegistered">
+          <!-- 回答用選択画面 -->
+          <div v-if="QuizAppProgressStatuses[0].status==='Q'">
+            <p>{{QuizAppQuestions[QuizAppProgressStatuses[0].num-1].sentence}}</p>
+            <v-radio-group v-model="radioGroup">
+              <v-radio
+                v-for="n in 4"
+                :key="n"
+                :label="`${n}：` + QuizAppQuestions[QuizAppProgressStatuses[0].num-1]['choise'+n]"
+                :value="n"
+              ></v-radio>
+            </v-radio-group>
+            <v-btn color="success"  v-on:click="ansQuestion">回答</v-btn>
+          </div>
+        </div>
       </v-flex>
 
       <v-flex mb-4>
-        <div v-for="item in QuizAppProgressStatuses" v-bind:key="item.id">
-          id: {{item.id}} num:{{item.num}} status:{{item.status}}
-        </div>
-        <h1 class="display-2 font-weight-bold mb-3">
-          Welcome to Vuetify
-        </h1>
-        <p class="subheading font-weight-regular">
-          For help and collaboration with other Vuetify developers,
-          <br>please join our online
-          <a href="https://community.vuetifyjs.com" target="_blank">Discord Community</a>
-        </p>
-        <button v-on:click="createQuizAppProgressStatus">test</button>
-        <button v-on:click="updateQuizAppProgressStatus">update</button>
       </v-flex>
 
       <v-flex
         mb-5
         xs12
       >
-        <h2 class="headline font-weight-bold mb-3">What's next?</h2>
 
         <v-layout justify-center>
-          <a
-            v-for="(next, i) in whatsNext"
-            :key="i"
-            :href="next.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ next.text }}
-          </a>
         </v-layout>
       </v-flex>
 
@@ -52,18 +43,8 @@
         xs12
         mb-5
       >
-        <h2 class="headline font-weight-bold mb-3">Important Links</h2>
 
         <v-layout justify-center>
-          <a
-            v-for="(link, i) in importantLinks"
-            :key="i"
-            :href="link.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ link.text }}
-          </a>
         </v-layout>
       </v-flex>
 
@@ -71,18 +52,8 @@
         xs12
         mb-5
       >
-        <h2 class="headline font-weight-bold mb-3">Ecosystem</h2>
 
         <v-layout justify-center>
-          <a
-            v-for="(eco, i) in ecosystem"
-            :key="i"
-            :href="eco.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ eco.text }}
-          </a>
         </v-layout>
       </v-flex>
     </v-layout>
@@ -90,74 +61,61 @@
 </template>
 
 <script>
-  import taskService from '../services/taskService'
+  import taskService from '../services/service'
   export default {
     data: () => ({
+      userId: null,
+      id: null,
+      password: null,
       QuizAppProgressStatuses: [],
-      ecosystem: [
-        {
-          text: 'vuetify-loader',
-          href: 'https://github.com/vuetifyjs/vuetify-loader'
-        },
-        {
-          text: 'github',
-          href: 'https://github.com/vuetifyjs/vuetify'
-        },
-        {
-          text: 'awesome-vuetify',
-          href: 'https://github.com/vuetifyjs/awesome-vuetify'
-        }
-      ],
-      importantLinks: [
-        {
-          text: 'Documentation',
-          href: 'https://vuetifyjs.com'
-        },
-        {
-          text: 'Chat',
-          href: 'https://community.vuetifyjs.com'
-        },
-        {
-          text: 'Made with Vuetify',
-          href: 'https://madewithvuetifyjs.com'
-        },
-        {
-          text: 'Twitter',
-          href: 'https://twitter.com/vuetifyjs'
-        },
-        {
-          text: 'Articles',
-          href: 'https://medium.com/vuetify'
-        }
-      ],
-      whatsNext: [
-        {
-          text: 'Explore components',
-          href: 'https://vuetifyjs.com/components/api-explorer'
-        },
-        {
-          text: 'Select a layout',
-          href: 'https://vuetifyjs.com/layout/pre-defined'
-        },
-        {
-          text: 'Frequently Asked Questions',
-          href: 'https://vuetifyjs.com/getting-started/frequently-asked-questions'
-        }
-
-      ]
+      QuizAppMembers: [],
+      QuizAppQuestions: [],
+      radioGroup: 1
     }),
+    computed: {
+      isRegistered() {
+        for(let member of this.QuizAppMembers) {
+          if(member.userId === this.userId && member.password === this.password) {
+            // this.id = member.id
+            return true
+          }
+        }
+        return false
+      }
+    },
     async mounted () {
       this.QuizAppProgressStatuses = await taskService.getQuizAppProgressStatus()
+      this.QuizAppMembers = await taskService.getQuizAppMembers()
+      this.QuizAppQuestions = await taskService.getQuizAppQuestions()
+
       taskService.onCreateQuizAppProgressStatus(this.getQuizAppProgressStatus)
       taskService.onUpdateQuizAppProgressStatus(this.getQuizAppProgressStatus)
+      taskService.onCreateQuizAppMember(this.getQuizAppMembers)
+      taskService.onUpdateQuizAppMember(this.getQuizAppMembers)
     },
     methods: {
+      async register () {
+        for (let member of this.QuizAppMembers) {
+          alert(member.userId)
+          if(member.userId === this.userId && member.password !== this.password) {
+            alert('既に本IDは登録されています')
+            return
+          } else if(member.userId === this.userId) {
+            alert('ログインしました')
+            return
+          }
+        }
+        await taskService.createQuizAppMember(this.userId, this.password)
+      },
       async createQuizAppProgressStatus () {
         let status = await taskService.createQuizAppProgressStatus()
         console.log(status)
       },
       async getQuizAppProgressStatus () {
         this.QuizAppProgressStatuses = await taskService.getQuizAppProgressStatus()
+      },
+      async getQuizAppMembers() {
+        this.QuizAppMembers = await taskService.getQuizAppMembers()
       },
       async updateQuizAppProgressStatus () {
         let quizAppProgressStatus = {
@@ -166,6 +124,20 @@
           status: 'Q'
         }
         await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
+      },
+      async ansQuestion () {
+        /* 回答比較 */
+        let target = this.QuizAppMembers.find((member) => {return member.userId === this.userId})
+        console.log(target)
+        if(this.QuizAppQuestions[this.QuizAppProgressStatuses[0].num -1].ans === this.radioGroup) {
+          let member = {
+            id: target.id,
+            userId:this.userId,
+            password: this.password,
+            score: target.score + 1
+          }
+          await taskService.updateQuizAppMember(member)
+        }
       }
     }
   }
