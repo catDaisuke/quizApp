@@ -5,12 +5,12 @@
       wrap
     >
       <v-flex xs12>
-        <div v-if="!isRegistered">
+        <div v-if="!isLogin">
           <v-text-field label="ユーザーID" v-model="userId"></v-text-field>
           <v-text-field label="パスワード" v-model="password"></v-text-field>
           <v-btn color="success" v-on:click="register">登録・ログイン</v-btn>
         </div>
-        <div v-if="isRegistered">
+        <div v-else-if="isLogin">
           <!-- 回答用選択画面 -->
           <div v-if="QuizAppProgressStatuses[0].status==='Q' && ansQuestionCount < QuizAppProgressStatuses[0].num">
             <p>{{QuizAppQuestions[QuizAppProgressStatuses[0].num-1].sentence}}</p>
@@ -79,7 +79,8 @@
       QuizAppQuestions: [],
       radioGroup: 1,
       ansQuestionCount: 0,
-      isThisAnsCorrect: false
+      isThisAnsCorrect: false,
+      isLogin: false
     }),
     computed: {
       isRegistered() {
@@ -112,10 +113,12 @@
             return
           } else if(member.userId === this.userId) {
             alert('ログインしました')
+            this.isLogin = true
             return
           }
         }
         await taskService.createQuizAppMember(this.userId, this.password)
+        this.isLogin = true
       },
       async createQuizAppProgressStatus () {
         let status = await taskService.createQuizAppProgressStatus()
