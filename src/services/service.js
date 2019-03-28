@@ -9,6 +9,7 @@ export default {
           id
           num
           status
+          isStarted
         }
       }
     }`
@@ -74,37 +75,41 @@ export default {
   },
   async createQuizAppProgressStatus() {
     const createQuizAppProgressStatus = `
-    mutation createQuizAppProgressStatus($num: Int!, $status: String!) {
+    mutation createQuizAppProgressStatus($num: Int!, $status: String!, $isStarted: Boolean!) {
       createQuizAppProgressStatus(
         input: {
-          num: $num, status: $status
+          num: $num, status: $status, isStarted: $isStarted
         }
       ) {
         num
         status
+        isStarted
       }
     }
     `
     const quizAppProgressStatusDetails = {
       num: 1,
-      status: 'Q'
+      status: 'Q',
+      isStarted: true
     }
     const newTask = await API.graphql(graphqlOperation(createQuizAppProgressStatus, quizAppProgressStatusDetails))
     return newTask
   },
   async updateQuizAppProgressStatus(taskDetails) {
     const updateQuizAppProgressStatus = `
-    mutation updateQuizAppProgressStatus($id: ID!, $num: Int!, $status: String!) {
+    mutation updateQuizAppProgressStatus($id: ID!, $num: Int!, $status: String!, $isStarted: Boolean!) {
       updateQuizAppProgressStatus(
         input: {
           id: $id
           num: $num
           status: $status
+          isStarted: $isStarted
         }
       ) {
         id
         num
         status
+        isStarted
       }
     }
     `
@@ -155,6 +160,7 @@ export default {
         id
         num
         status
+        isStarted
       }
     }`
     const subscription = API.graphql(graphqlOperation(subscriptionQuizAppProgressStatus))
@@ -171,6 +177,7 @@ export default {
         id
         num
         status
+        isStarted
       }
     }`
     const subscription = API.graphql(graphqlOperation(subscriptionQuizAppProgressStatus))
@@ -187,6 +194,7 @@ export default {
         id
         num
         status
+        isStarted
       }
     }`
     const subscription = API.graphql(graphqlOperation(subscriptionQuizAppProgressStatus))

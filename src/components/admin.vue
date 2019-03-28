@@ -89,13 +89,20 @@
     }),
     computed: {
       isStarted() {
+        console.log(this.QuizAppProgressStatuses)
         if(this.QuizAppProgressStatuses.length == 0) {
+          return false
+        }
+        if(!this.QuizAppProgressStatuses[0].isStarted){
           return false
         }
         return true
       },
       isNextQuestion() {
         if(this.QuizAppProgressStatuses.length == 0) {
+          return false
+        }
+        if(!this.QuizAppProgressStatuses[0].isStarted){
           return false
         }
         if(this.QuizAppProgressStatuses[0].status === 'A') {
@@ -105,9 +112,27 @@
       },
       nowQuestion() {
         /* クイズ開始ステータス時は設問と選択肢を返却 */
-        if(this.QuizAppProgressStatuses.length === 1 &&
-         this.QuizAppQuestions.length >= this.QuizAppProgressStatuses[0].num) {
+        if(this.QuizAppProgressStatuses.length === 1 && this.QuizAppProgressStatuses[0].isStarted
+         && this.QuizAppQuestions.length >= this.QuizAppProgressStatuses[0].num) {
           return this.QuizAppQuestions[this.QuizAppProgressStatuses[0].num-1]
+        } else if(this.QuizAppProgressStatuses.length === 0) {
+          let contents = {
+          sentence: 'クイズ準備中',
+          choise1: '',
+          choise2: '',
+          choise3: '',
+          choise4: ''
+          }
+          return contents
+        } else if(!this.QuizAppProgressStatuses[0].isStarted) {
+          let contents = {
+          sentence: 'クイズ準備中',
+          choise1: '',
+          choise2: '',
+          choise3: '',
+          choise4: ''
+          }
+          return contents
         } else {
           let contents = {
           sentence: '全クイズ終了',
@@ -140,6 +165,14 @@
       async createQuizAppProgressStatus () {
         if(this.QuizAppProgressStatuses.length == 0) {
           await taskService.createQuizAppProgressStatus()
+        } else if(!this.QuizAppProgressStatuses[0].isStarted){
+          let quizAppProgressStatus = {
+            id: this.QuizAppProgressStatuses[0].id,
+            num: 1,
+            status: 'Q',
+            isStarted: true
+          }
+          await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
         } else {
           alert('クイズはすでに開始されています')
         }
@@ -158,7 +191,8 @@
           let quizAppProgressStatus = {
             id: quizAppProgressStatusId,
             num: quizAppProgressStatusNum + 1,
-            status: 'Q'
+            status: 'Q',
+            isStarted: true
           }
           await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
         } else {
@@ -173,7 +207,8 @@
           let quizAppProgressStatus = {
             id: quizAppProgressStatusId,
             num: quizAppProgressStatusNum,
-            status: 'A'
+            status: 'A',
+            isStarted: true
           }
           await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
         } else {

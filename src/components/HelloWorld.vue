@@ -12,7 +12,7 @@
         </div>
         <div v-if="isRegistered">
           <!-- 回答用選択画面 -->
-          <div v-if="QuizAppProgressStatuses[0].status==='Q'">
+          <div v-if="QuizAppProgressStatuses[0].status==='Q' && ansQuestionCount < QuizAppProgressStatuses[0].num">
             <p>{{QuizAppQuestions[QuizAppProgressStatuses[0].num-1].sentence}}</p>
             <v-radio-group v-model="radioGroup">
               <v-radio
@@ -23,6 +23,13 @@
               ></v-radio>
             </v-radio-group>
             <v-btn color="success"  v-on:click="ansQuestion">回答</v-btn>
+          </div>
+          <div v-else-if="QuizAppProgressStatuses[0].status==='Q'">回答しました</div>
+          <div v-else-if="QuizAppProgressStatuses[0].status==='A'">
+            <div v-if="isThisAnsCorrect">
+              正解！
+            </div>
+            <div v-else>不正解</div>
           </div>
         </div>
       </v-flex>
@@ -71,7 +78,8 @@
       QuizAppMembers: [],
       QuizAppQuestions: [],
       radioGroup: 1,
-      ansQuestionCount: 0
+      ansQuestionCount: 0,
+      isThisAnsCorrect: false
     }),
     computed: {
       isRegistered() {
@@ -82,7 +90,7 @@
           }
         }
         return false
-      }
+      },
     },
     async mounted () {
       this.QuizAppProgressStatuses = await taskService.getQuizAppProgressStatus()
@@ -141,9 +149,13 @@
             }
             await taskService.updateQuizAppMember(member)
             this.ansQuestionCount = this.QuizAppProgressStatuses[0].num
+            this.isThisAnsCorrect = true
           } else {
-            alert('回答済みです')
+            this.ansQuestionCount = this.QuizAppProgressStatuses[0].num
+            this.isThisAnsCorrect = false
           }
+        } else {
+            alert('回答済みです')
         }
       }
     }
