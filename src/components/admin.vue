@@ -63,7 +63,8 @@
         xs12
       >
         <v-layout justify-center>
-                <v-btn color="success"  v-on:click="reset">リセット</v-btn>
+          <v-btn color="success"  v-on:click="reset">リセット</v-btn>
+          <v-btn color="success"  v-on:click="userReset">ユーザー初期化</v-btn>
         </v-layout>
       </v-flex>
 
@@ -277,6 +278,12 @@
             isStarted: false
         }
         await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
+      },
+      /**
+       * 全ユーザー削除
+       */
+      async userReset() {
+
       }
     }
   }
