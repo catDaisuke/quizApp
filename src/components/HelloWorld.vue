@@ -11,8 +11,9 @@
           <v-btn color="success" v-on:click="register">登録・ログイン</v-btn>
         </div>
         <div v-else-if="isLogin">
+
           <!-- 回答用選択画面 -->
-          <div v-if="QuizAppProgressStatuses[0].status==='Q' && ansQuestionCount < QuizAppProgressStatuses[0].num">
+          <div v-if="isStarted && ansQuestionCount < QuizAppProgressStatuses[0].num">
             <p>{{QuizAppQuestions[QuizAppProgressStatuses[0].num-1].sentence}}</p>
             <v-radio-group v-model="radioGroup">
               <v-radio
@@ -24,13 +25,15 @@
             </v-radio-group>
             <v-btn color="success"  v-on:click="ansQuestion">回答</v-btn>
           </div>
-          <div v-else-if="QuizAppProgressStatuses[0].status==='Q'">回答しました</div>
-          <div v-else-if="QuizAppProgressStatuses[0].status==='A'">
+          <div v-else-if="isStarted && QuizAppProgressStatuses[0].status==='Q'">回答しました</div>
+          <div v-else-if="isStarted && QuizAppProgressStatuses[0].status==='A'">
             <div v-if="isThisAnsCorrect">
               正解！
             </div>
             <div v-else>不正解</div>
           </div>
+        <div v-if="!isStarted && !isEnd">開始までしばらく待ち</div>
+        <div v-if="isEnd">終了</div> 
         </div>
       </v-flex>
 
@@ -83,6 +86,28 @@
       isLogin: false
     }),
     computed: {
+      isStarted() {
+        console.log(this.QuizAppProgressStatuses)
+        if(this.QuizAppProgressStatuses.length == 0) {
+          return false
+        }
+        if(!this.QuizAppProgressStatuses[0].isStarted){
+          return false
+        }
+        return true
+      },
+      isEnd() {
+        try {
+        if(this.QuizAppProgressStatuses[0].status === 'A') {
+          if(this.QuizAppProgressStatuses[0].isStarted === false) {
+            return true
+          }
+        }
+        return false
+        } catch (e) {
+          return false
+        }
+      },
       isRegistered() {
         for(let member of this.QuizAppMembers) {
           if(member.userId === this.userId && member.password === this.password) {

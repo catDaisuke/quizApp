@@ -15,7 +15,7 @@
         </p>
         <div v-if="!isStarted">
           <div v-if="!isEnd">
-          <v-btn v-if="!isStarted" color="success"  v-on:click="createQuizAppProgressStatus">クイズ開始</v-btn>
+            <v-btn v-if="!isStarted" color="success"  v-on:click="createQuizAppProgressStatus">クイズ開始</v-btn>
           </div>
           <div v-else>
             全問終了
