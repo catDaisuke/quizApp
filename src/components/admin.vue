@@ -13,19 +13,48 @@
         </h1>
         <p class="subheading font-weight-regular">
         </p>
-        <v-btn v-if="!isStarted" color="success"  v-on:click="createQuizAppProgressStatus">クイズ開始</v-btn>
-        <div v-if="!isNextQuestion">
-        <div class = "sentence">{{nowQuestion.sentence}}</div>
-        <p>1 {{nowQuestion.choise1}}</p>
-        <p>2 {{nowQuestion.choise2}}</p>
-        <p>3 {{nowQuestion.choise3}}</p>
-        <p>4 {{nowQuestion['choise4']}}</p>
-        <v-btn v-if="!isNextQuestion" color="success"  v-on:click="ansQuestion">回答</v-btn>
+        <div v-if="!isStarted">
+          <div v-if="!isEnd">
+          <v-btn v-if="!isStarted" color="success"  v-on:click="createQuizAppProgressStatus">クイズ開始</v-btn>
+          </div>
+          <div v-else>
+            全問終了
+          </div>
+          <v-data-table
+          :headers="headers"
+          :items="QuizAppMembers"
+          class="elevation-1"
+          >
+            <template v-slot:items="props">
+              <td>{{ props.item.userId }}</td>
+              <td class="text-xs-right">{{ props.item.score }}</td>
+            </template>
+          </v-data-table>
         </div>
-        <div v-if="isNextQuestion">
-          <p>正解</p>
-          <p>{{correctAnswer}}</p>
-          <v-btn v-if="isNextQuestion" color="success"  v-on:click="nextQuestion">次の質問へ</v-btn>
+        <div v-else>
+          <div v-if="!isNextQuestion">
+            <div class = "sentence">{{nowQuestion.sentence}}</div>
+            <p>1 {{nowQuestion.choise1}}</p>
+            <p>2 {{nowQuestion.choise2}}</p>
+            <p>3 {{nowQuestion.choise3}}</p>
+            <p>4 {{nowQuestion['choise4']}}</p>
+            <v-btn v-if="!isNextQuestion" color="success"  v-on:click="ansQuestion">回答</v-btn>
+          </div>
+          <div v-if="isNextQuestion">
+            <p>正解</p>
+            <p>{{correctAnswer}}</p>
+            <v-data-table
+              :headers="headers"
+              :items="QuizAppMembers"
+              class="elevation-1"
+            >
+              <template v-slot:items="props">
+                <td>{{ props.item.userId }}</td>
+                <td class="text-xs-right">{{ props.item.score }}</td>
+              </template>
+            </v-data-table>
+            <v-btn v-if="isNextQuestion" color="success"  v-on:click="nextQuestion">次の質問へ</v-btn>
+          </div>
         </div>
       </v-flex>
 
@@ -33,16 +62,6 @@
         mb-5
         xs12
       >
-        <v-data-table
-          :headers="headers"
-          :items="QuizAppMembers"
-          class="elevation-1"
-        >
-        <template v-slot:items="props">
-          <td>{{ props.item.userId }}</td>
-          <td class="text-xs-right">{{ props.item.score }}</td>
-        </template>
-        </v-data-table>
         <v-layout justify-center>
                 <v-btn color="success"  v-on:click="reset">リセット</v-btn>
         </v-layout>
@@ -98,6 +117,18 @@
         }
         return true
       },
+      isEnd() {
+        try {
+        if(this.QuizAppProgressStatuses[0].status === 'A') {
+          if(this.QuizAppProgressStatuses[0].isStarted === false) {
+            return true
+          }
+        }
+        return false
+        } catch (e) {
+          return false
+        }
+      },
       isNextQuestion() {
         if(this.QuizAppProgressStatuses.length == 0) {
           return false
@@ -145,9 +176,13 @@
         }
       },
       correctAnswer() {
+        try{
         let num = this.QuizAppProgressStatuses[0].num
         let ans = this.QuizAppQuestions[num-1].ans
         return this.QuizAppQuestions[num-1][`choise${ans}`]
+        } catch(e) {
+          return 'error'
+        }
       }
     },
     async mounted () {
@@ -187,12 +222,25 @@
         let quizAppProgressStatusId = this.QuizAppProgressStatuses[0].id
         let quizAppProgressStatusNum = this.QuizAppProgressStatuses[0].num
         let quizAppProgressStatusStatus = this.QuizAppProgressStatuses[0].status
-        if(quizAppProgressStatusStatus === 'A') {
+
+        if(quizAppProgressStatusStatus === 'A' && quizAppProgressStatusNum != this.QuizAppQuestions.length) {
           let quizAppProgressStatus = {
             id: quizAppProgressStatusId,
             num: quizAppProgressStatusNum + 1,
             status: 'Q',
             isStarted: true
+          }
+          await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
+        } else if (quizAppProgressStatusStatus === 'A' && quizAppProgressStatusNum == this.QuizAppQuestions.length){
+          alert('全問題終了')
+          // let quizAppProgressStatusId = this.QuizAppProgressStatuses[0].id
+          // let quizAppProgressStatusNum = this.QuizAppProgressStatuses[0].num
+          // let quizAppProgressStatusStatus = this.QuizAppProgressStatuses[0].status
+          let quizAppProgressStatus = {
+            id: quizAppProgressStatusId,
+            num: quizAppProgressStatusNum,
+            status: 'A',
+            isStarted: false
           }
           await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
         } else {
@@ -217,11 +265,18 @@
       },
       async reset() {
         alert('reset')
-        if(this.QuizAppProgressStatuses.length > 0) {
-          for(let status of this.QuizAppProgressStatuses) {
-            await taskService.deleteQuizAppProgressStatus(status.id)
-          }
+        // if(this.QuizAppProgressStatuses.length > 0) {
+        //   for(let status of this.QuizAppProgressStatuses) {
+        //     await taskService.deleteQuizAppProgressStatus(status.id)
+        //   }
+        // }
+        let quizAppProgressStatus = {
+            id: this.QuizAppProgressStatuses[0].id,
+            num: 1,
+            status: 'Q',
+            isStarted: false
         }
+        await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
       }
     }
   }
