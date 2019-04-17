@@ -43,10 +43,21 @@
           <div v-if="isNextQuestion">
             <p>正解</p>
             <p>{{correctAnswer}}</p>
+            <!-- <v-card>
+            <v-list-item two-line  v-for="item in QuizAppMembers" v-bind:key="item.userId">
+              <v-list-item-content>
+                <v-list-item-title>{{item.userId}}</v-list-item-title>
+                <v-list-item-subtitle>{{item.score}} point</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            </v-card> -->
             <v-data-table
               :headers="headers"
               :items="QuizAppMembers"
               class="elevation-1"
+              :rows-per-page-items='[{"text":"All","value":-1}]'
+              :pagination.sync="pagination"
+              hide-actions
             >
               <template v-slot:items="props">
                 <td>{{ props.item.userId }}</td>
@@ -92,6 +103,11 @@
   import taskService from '../services/service'
   export default {
     data: () => ({
+      pagination: {
+        sortBy: 'score',
+        descending: true,
+        rowsPerPage: -1,
+      },
       id: null,
       password: null,
       QuizAppProgressStatuses: [],

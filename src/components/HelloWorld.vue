@@ -1,5 +1,16 @@
 <template>
-  <v-container>
+  <v-container fluid>
+    <v-toolbar app>
+    <!-- <v-toolbar-side-icon></v-toolbar-side-icon> -->
+      <v-toolbar-title class="font-weight-light">QuizApp</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <!-- <v-toolbar-items class="hidden-sm-and-down"> -->
+        <div class="font-weight-light">{{userId}}</div>
+        <v-spacer></v-spacer>
+        <div flat class="font-weight-light">score : {{score}}</div>
+        <!-- <v-btn flat>Link Three</v-btn> -->
+        <!-- </v-toolbar-items> -->
+    </v-toolbar>
     <v-layout
       text-xs-center
       wrap
@@ -7,8 +18,8 @@
       <v-flex xs12>
         <div v-if="!isLogin">
           <v-text-field label="ユーザーID" v-model="userId"></v-text-field>
-          <v-text-field label="パスワード" v-model="password"></v-text-field>
-          <v-btn color="success" v-on:click="register">登録・ログイン</v-btn>
+          <!-- <v-text-field label="パスワード" v-model="password"></v-text-field> -->
+          <v-btn color="success" v-on:click="register">登録</v-btn>
         </div>
         <div v-else-if="isLogin">
 
@@ -25,14 +36,33 @@
             </v-radio-group>
             <v-btn color="success"  v-on:click="ansQuestion">回答</v-btn>
           </div>
-          <div v-else-if="isStarted && QuizAppProgressStatuses[0].status==='Q'">回答しました</div>
-          <div v-else-if="isStarted && QuizAppProgressStatuses[0].status==='A'">
+          <div v-else-if="isStarted && QuizAppProgressStatuses[0].status==='Q'" class="standby">
+            <div class="status">waiting...</div>
+            <v-progress-circular
+              indeterminate
+              :size="70"
+              :width="7"
+              color="green"
+            ></v-progress-circular></div>
+            <div v-else-if="isStarted && QuizAppProgressStatuses[0].status==='A'">
             <div v-if="isThisAnsCorrect">
-              正解！
+              <div class="correct">○</div>
+              <div>correct!</div>
             </div>
-            <div v-else>不正解</div>
+            <div v-else>
+              <div class="mistake">×</div>
+              <div>mistake</div>
+            </div>
           </div>
-        <div v-if="!isStarted && !isEnd">開始までしばらく待ち</div>
+        <div v-if="!isStarted && !isEnd" class="standby">
+          <div class="status">waiting...</div>
+          <v-progress-circular
+            indeterminate
+            :size="70"
+            :width="7"
+            color="green"
+          ></v-progress-circular>
+        </div>
         <div v-if="isEnd">終了</div> 
         </div>
       </v-flex>
@@ -83,7 +113,8 @@
       radioGroup: 1,
       ansQuestionCount: 0,
       isThisAnsCorrect: false,
-      isLogin: false
+      isLogin: false,
+      score: 0
     }),
     computed: {
       isStarted() {
@@ -110,7 +141,7 @@
       },
       isRegistered() {
         for(let member of this.QuizAppMembers) {
-          if(member.userId === this.userId && member.password === this.password) {
+          if(member.userId === this.userId) {
             // this.id = member.id
             return true
           }
@@ -128,21 +159,30 @@
       taskService.onDeleteQuizAppProgressStatus(this.getQuizAppProgressStatus)
       taskService.onCreateQuizAppMember(this.getQuizAppMembers)
       taskService.onUpdateQuizAppMember(this.getQuizAppMembers)
-    },
-    methods: {
-      async register () {
+      if(!localStorage.QuizAppuserId) {
+        return
+      } else {
         for (let member of this.QuizAppMembers) {
-          alert(member.userId)
-          if(member.userId === this.userId && member.password !== this.password) {
-            alert('既に本IDは登録されています')
-            return
-          } else if(member.userId === this.userId) {
-            alert('ログインしました')
+          if(member.userId === localStorage.QuizAppuserId) {
+            this.userId = localStorage.QuizAppuserId
+            this.score = member.score
             this.isLogin = true
             return
           }
         }
-        await taskService.createQuizAppMember(this.userId, this.password)
+        localStorage.removeItem('QuizAppuserId')
+      }
+    },
+    methods: {
+      async register () {
+        for (let member of this.QuizAppMembers) {
+          if(member.userId === this.userId) {
+            alert('既に本IDは登録されています')
+            return
+          }
+        }
+        await taskService.createQuizAppMember(this.userId)
+        localStorage.QuizAppuserId = this.userId
         this.isLogin = true
       },
       async createQuizAppProgressStatus () {
@@ -178,6 +218,7 @@
             await taskService.updateQuizAppMember(member)
             this.ansQuestionCount = this.QuizAppProgressStatuses[0].num
             this.isThisAnsCorrect = true
+            this.score = this.score + 1
           } else {
             this.ansQuestionCount = this.QuizAppProgressStatuses[0].num
             this.isThisAnsCorrect = false
@@ -191,5 +232,10 @@
 </script>
 
 <style>
-
+.status{
+  margin-bottom: -3rem;
+}
+.standby {
+  margin-top:10rem;
+}
 </style>

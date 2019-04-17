@@ -53,7 +53,7 @@ export default {
   /* todo 以下修正 */
   async createQuizAppMember(inputId, inputPassword) {
     const createQuizAppMember = `
-    mutation createQuizAppMember($userId: String!, $password: String!, $score: Int!) {
+    mutation createQuizAppMember($userId: String!, $password: String, $score: Int!) {
       createQuizAppMember(
         input: {
           userId:$userId, password: $password, score: $score
@@ -118,7 +118,7 @@ export default {
   },
   async updateQuizAppMember(member) {
     const updateQuizAppMember = `
-    mutation updateQuizAppMember($id: String!, $userId: String!, $password: String!, $score: Int) {
+    mutation updateQuizAppMember($id: String!, $userId: String!, $password: String, $score: Int) {
       updateQuizAppMember(
         input: {
           id: $id

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-toolbar app>
+    <!-- <v-toolbar app>
       <v-toolbar-title class="headline">
         <span></span>
         <span class="font-weight-light">QuizApp</span>
@@ -10,7 +10,7 @@
         flat
       >
       </v-btn>
-    </v-toolbar>
+    </v-toolbar> -->
 
     <v-content>
       <router-view/>
