@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.2a8ad8fc8277beaeeec3c516a5c002c1.js"
+  "precache-manifest.91de55a5e45e32c571fec9665353c156.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "vue-appsync"});

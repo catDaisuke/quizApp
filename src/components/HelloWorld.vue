@@ -1,13 +1,13 @@
 <template>
   <v-container fluid>
-    <v-toolbar app>
+    <v-toolbar app color="#ffc0cb">
     <!-- <v-toolbar-side-icon></v-toolbar-side-icon> -->
-      <v-toolbar-title class="font-weight-light">QuizApp</v-toolbar-title>
+      <v-toolbar-title class="font-weight-light title">Wedding Quiz</v-toolbar-title>
       <v-spacer></v-spacer>
       <!-- <v-toolbar-items class="hidden-sm-and-down"> -->
         <div class="font-weight-light">{{userId}}</div>
         <v-spacer></v-spacer>
-        <div flat class="font-weight-light">score : {{score}}</div>
+        <div flat class="font-weight-light"><div v-if="isStarted">score : {{score}}</div></div>
         <!-- <v-btn flat>Link Three</v-btn> -->
         <!-- </v-toolbar-items> -->
     </v-toolbar>
@@ -43,8 +43,9 @@
               :size="70"
               :width="7"
               color="green"
-            ></v-progress-circular></div>
-            <div v-else-if="isStarted && QuizAppProgressStatuses[0].status==='A'">
+            ></v-progress-circular>
+          </div>
+          <div v-else-if="isStarted && QuizAppProgressStatuses[0].status==='A'">
             <div v-if="isThisAnsCorrect">
               <div class="correct">○</div>
               <div>correct!</div>
@@ -116,7 +117,21 @@
       isLogin: false,
       score: 0
     }),
+    watch: {
+      /* ある質問が回答公開されたとき、ユーザーが回答していなかった場合、
+      強制的に回答番号を進め、現在の回答ステータス不正解にする */
+      QuizAppProgressStatuses: {
+        handler(val) {
+          if(this.ansQuestionCount < val[0].num && val[0].status === 'A') {
+            this.ansQuestionCount = val[0].num
+            this.isThisAnsCorrect = false
+          }
+        },
+        deep:true
+      }
+    },
     computed: {
+      /* クイズ開始されたかどうか */
       isStarted() {
         console.log(this.QuizAppProgressStatuses)
         if(this.QuizAppProgressStatuses.length == 0) {
@@ -127,6 +142,7 @@
         }
         return true
       },
+      /* 問題終了したかどうか */
       isEnd() {
         try {
         if(this.QuizAppProgressStatuses[0].status === 'A') {
@@ -231,11 +247,16 @@
   }
 </script>
 
-<style>
+<style scoped>
+@import url('https://fonts.googleapis.com/css?family=Great+Vibes');
+
 .status{
   margin-bottom: -3rem;
 }
 .standby {
   margin-top:10rem;
+}
+.title {
+  font-family: 'Great Vibes', cursive !important;
 }
 </style>

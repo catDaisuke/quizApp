@@ -1,5 +1,16 @@
 <template>
   <v-container>
+    <v-toolbar app color="#ffc0cb">
+    <!-- <v-toolbar-side-icon></v-toolbar-side-icon> -->
+      <v-toolbar-title class="font-weight-light title">Wedding Quiz</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <!-- <v-toolbar-items class="hidden-sm-and-down"> -->
+        <!-- <div class="font-weight-light">{{userId}}</div>
+        <v-spacer></v-spacer>
+        <div flat class="font-weight-light"><div v-if="isStarted">score : {{score}}</div></div> -->
+        <!-- <v-btn flat>Link Three</v-btn> -->
+        <!-- </v-toolbar-items> -->
+    </v-toolbar>
     <v-layout
       text-xs-center
       wrap
@@ -8,9 +19,9 @@
       </v-flex>
 
       <v-flex mb-4>
-        <h1 class="display-2 font-weight-bold mb-3">
-          QuizApp
-        </h1>
+        <!-- <h1 class="display-2 font-weight-bold mb-3">
+          Wedding Quiz
+        </h1> -->
         <p class="subheading font-weight-regular">
         </p>
         <div v-if="!isStarted">
@@ -20,11 +31,14 @@
           <div v-else>
             全問終了
           </div>
-          <v-data-table
-          :headers="headers"
-          :items="QuizAppMembers"
-          class="elevation-1"
-          >
+            <v-data-table
+              :headers="headers"
+              :items="QuizAppMembers"
+              class="elevation-1"
+              :rows-per-page-items='[{"text":"alll","value":-1}]'
+              :pagination.sync="pagination"
+              hide-actions
+            >
             <template v-slot:items="props">
               <td>{{ props.item.userId }}</td>
               <td class="text-xs-right">{{ props.item.score }}</td>
@@ -41,30 +55,34 @@
             <v-btn v-if="!isNextQuestion" color="success"  v-on:click="ansQuestion">回答</v-btn>
           </div>
           <div v-if="isNextQuestion">
-            <p>正解</p>
-            <p>{{correctAnswer}}</p>
-            <!-- <v-card>
-            <v-list-item two-line  v-for="item in QuizAppMembers" v-bind:key="item.userId">
-              <v-list-item-content>
-                <v-list-item-title>{{item.userId}}</v-list-item-title>
-                <v-list-item-subtitle>{{item.score}} point</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-            </v-card> -->
-            <v-data-table
-              :headers="headers"
-              :items="QuizAppMembers"
-              class="elevation-1"
-              :rows-per-page-items='[{"text":"All","value":-1}]'
-              :pagination.sync="pagination"
-              hide-actions
+            <v-tabs
+              color="#ffc0cb"
+              dark
+              slider-color="yellow"
             >
-              <template v-slot:items="props">
-                <td>{{ props.item.userId }}</td>
-                <td class="text-xs-right">{{ props.item.score }}</td>
-              </template>
-            </v-data-table>
-            <v-btn v-if="isNextQuestion" color="success"  v-on:click="nextQuestion">次の質問へ</v-btn>
+              <v-tab>回答</v-tab>
+              <v-tab>score一覧</v-tab>
+              <v-tab-item>
+                <p>正解</p>
+                <p>{{QuizAppProgressStatuses[0].num}}. {{correctAnswer}}</p>
+              </v-tab-item>
+              <v-tab-item>
+                <v-data-table
+                  :headers="headers"
+                  :items="QuizAppMembers"
+                  class="elevation-1"
+                  :rows-per-page-items='[{"text":"alll","value":-1}]'
+                  :pagination.sync="pagination"
+                  hide-actions
+                >
+                  <template v-slot:items="props">
+                    <td>{{ props.item.userId }}</td>
+                    <td class="text-xs-right">{{ props.item.score }}</td>
+                  </template>
+                </v-data-table>
+              </v-tab-item>
+            </v-tabs>
+            <v-btn v-if="isNextQuestion" color="success"  v-on:click="nextQuestion">次の問題へ</v-btn>
           </div>
         </div>
       </v-flex>
@@ -75,7 +93,6 @@
       >
         <v-layout justify-center>
           <v-btn color="success"  v-on:click="reset">リセット</v-btn>
-          <v-btn color="success"  v-on:click="userReset">ユーザー初期化</v-btn>
         </v-layout>
       </v-flex>
 
@@ -106,7 +123,7 @@
       pagination: {
         sortBy: 'score',
         descending: true,
-        rowsPerPage: -1,
+        rowsPerPage: 100,
       },
       id: null,
       password: null,
@@ -121,7 +138,7 @@
           value: 'userId'
         },
         { text: 'スコア', value: 'score' },
-      ],
+      ]
     }),
     computed: {
       isStarted() {
@@ -281,12 +298,11 @@
         }
       },
       async reset() {
-        alert('reset')
-        // if(this.QuizAppProgressStatuses.length > 0) {
-        //   for(let status of this.QuizAppProgressStatuses) {
-        //     await taskService.deleteQuizAppProgressStatus(status.id)
-        //   }
-        // }
+        alert('得点と進捗状況を初期化します')
+        for(let member of this.QuizAppMembers) {
+          member.score = 0
+          await taskService.updateQuizAppMember(member)
+        }
         let quizAppProgressStatus = {
             id: this.QuizAppProgressStatuses[0].id,
             num: 1,
@@ -294,6 +310,7 @@
             isStarted: false
         }
         await taskService.updateQuizAppProgressStatus(quizAppProgressStatus)
+
       },
       /**
        * 全ユーザー削除
@@ -305,6 +322,13 @@
   }
 </script>
 
-<style>
+<style scoped>
+@import url('https://fonts.googleapis.com/css?family=Great+Vibes');
 
+h1 {
+  font-family: 'Great Vibes', cursive !important;
+}
+.title {
+  font-family: 'Great Vibes', cursive !important;
+}
 </style>
