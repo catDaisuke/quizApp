@@ -7,7 +7,7 @@
       <!-- <v-toolbar-items class="hidden-sm-and-down"> -->
         <div class="font-weight-light">{{userId}}</div>
         <v-spacer></v-spacer>
-        <div flat class="font-weight-light"><div v-if="isStarted">score : {{score}}</div></div>
+        <!-- <div flat class="font-weight-light"><div v-if="isStarted">score : {{score}}</div></div> -->
         <!-- <v-btn flat>Link Three</v-btn> -->
         <!-- </v-toolbar-items> -->
     </v-toolbar>
@@ -25,7 +25,22 @@
 
           <!-- 回答用選択画面 -->
           <div v-if="isStarted && ansQuestionCount < QuizAppProgressStatuses[0].num">
-            <p>{{QuizAppQuestions[QuizAppProgressStatuses[0].num-1].sentence}}</p>
+            <v-card>
+              <v-card-title>
+                {{QuizAppQuestions[QuizAppProgressStatuses[0].num-1].sentence}}
+              </v-card-title>
+              <v-card-text>
+                <v-radio-group v-model="radioGroup">
+                <v-radio
+                v-for="n in 4"
+                :key="n"
+                :label="`${n}：` + QuizAppQuestions[QuizAppProgressStatuses[0].num-1]['choise'+n]"
+                :value="n"
+                ></v-radio>
+            </v-radio-group>
+              </v-card-text>
+            </v-card>
+            <!-- <p>{{QuizAppQuestions[QuizAppProgressStatuses[0].num-1].sentence}}</p>
             <v-radio-group v-model="radioGroup">
               <v-radio
                 v-for="n in 4"
@@ -33,8 +48,8 @@
                 :label="`${n}：` + QuizAppQuestions[QuizAppProgressStatuses[0].num-1]['choise'+n]"
                 :value="n"
               ></v-radio>
-            </v-radio-group>
-            <v-btn color="success"  v-on:click="ansQuestion">回答</v-btn>
+            </v-radio-group> -->
+            <v-btn color="#ffc0cb"  v-on:click="ansQuestion">回答</v-btn>
           </div>
           <div v-else-if="isStarted && QuizAppProgressStatuses[0].status==='Q'" class="standby">
             <div class="status">waiting...</div>
@@ -42,7 +57,7 @@
               indeterminate
               :size="70"
               :width="7"
-              color="green"
+              color="#ffc0cb"
             ></v-progress-circular>
           </div>
           <div v-else-if="isStarted && QuizAppProgressStatuses[0].status==='A'">
@@ -61,7 +76,7 @@
             indeterminate
             :size="70"
             :width="7"
-            color="green"
+            color="#ffc0cb"
           ></v-progress-circular>
         </div>
         <div v-if="isEnd">終了</div> 
@@ -258,5 +273,8 @@
 }
 .title {
   font-family: 'Great Vibes', cursive !important;
+}
+p {
+  color:rgba(0,0,0,0.54);
 }
 </style>

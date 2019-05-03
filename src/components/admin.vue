@@ -19,14 +19,11 @@
       </v-flex>
 
       <v-flex mb-4>
-        <!-- <h1 class="display-2 font-weight-bold mb-3">
-          Wedding Quiz
-        </h1> -->
         <p class="subheading font-weight-regular">
         </p>
         <div v-if="!isStarted">
           <div v-if="!isEnd">
-            <v-btn v-if="!isStarted" color="success"  v-on:click="createQuizAppProgressStatus">クイズ開始</v-btn>
+            <v-btn v-if="!isStarted" color="#ffc0cb"  v-on:click="createQuizAppProgressStatus">クイズ開始</v-btn>
           </div>
           <div v-else>
             全問終了
@@ -48,11 +45,86 @@
         <div v-else>
           <div v-if="!isNextQuestion">
             <div class = "sentence">{{nowQuestion.sentence}}</div>
-            <p>1 {{nowQuestion.choise1}}</p>
+            <v-container
+              fluid
+              grid-list-md
+            >
+            <v-layout row wrap>
+            <v-flex xs6>
+            <v-card>
+            <!-- <v-img
+              src="https://cdn.vuetifyjs.com/images/cards/desert.jpg"
+              aspect-ratio="2.75"
+            ></v-img> -->
+            <v-card-title primary-title>
+              <div>
+                <h3 class="headline mb-0">1. {{nowQuestion.choise1}}</h3>
+                <div></div>
+              </div>
+            </v-card-title>
+            <!-- <v-card-actions>
+              <v-btn flat color="orange">Share</v-btn>
+              <v-btn flat color="orange">Explore</v-btn>
+            </v-card-actions> -->
+          </v-card>
+          <v-card>
+            <!-- <v-img
+              src="https://cdn.vuetifyjs.com/images/cards/desert.jpg"
+              aspect-ratio="2.75"
+            ></v-img> -->
+            <v-card-title primary-title>
+              <div>
+                <h3 class="headline mb-0">2. {{nowQuestion.choise2}}</h3>
+                <div></div>
+              </div>
+            </v-card-title>
+            <!-- <v-card-actions>
+              <v-btn flat color="orange">Share</v-btn>
+              <v-btn flat color="orange">Explore</v-btn>
+            </v-card-actions> -->
+          </v-card>
+          </v-flex>
+          <v-flex xs6>
+            <v-card>
+            <!-- <v-img
+              src="https://cdn.vuetifyjs.com/images/cards/desert.jpg"
+              aspect-ratio="2.75"
+            ></v-img> -->
+            <v-card-title primary-title>
+              <div>
+                <h3 class="headline mb-0">3. {{nowQuestion.choise3}}</h3>
+                <div></div>
+              </div>
+            </v-card-title>
+            <!-- <v-card-actions>
+              <v-btn flat color="orange">Share</v-btn>
+              <v-btn flat color="orange">Explore</v-btn>
+            </v-card-actions> -->
+          </v-card>
+            <v-card>
+            <!-- <v-img
+              src="https://cdn.vuetifyjs.com/images/cards/desert.jpg"
+              aspect-ratio="2.75"
+            ></v-img> -->
+            <v-card-title primary-title>
+              <div>
+                <h3 class="headline mb-0">4. {{nowQuestion.choise4}}</h3>
+                <div></div>
+              </div>
+            </v-card-title>
+            <!-- <v-card-actions>
+              <v-btn flat color="orange">Share</v-btn>
+              <v-btn flat color="orange">Explore</v-btn>
+            </v-card-actions> -->
+          </v-card>
+          </v-flex>
+          </v-layout>
+          </v-container>
+            <!-- <p>1 {{nowQuestion.choise1}}</p>
             <p>2 {{nowQuestion.choise2}}</p>
             <p>3 {{nowQuestion.choise3}}</p>
-            <p>4 {{nowQuestion['choise4']}}</p>
-            <v-btn v-if="!isNextQuestion" color="success"  v-on:click="ansQuestion">回答</v-btn>
+            <p>4 {{nowQuestion['choise4']}}</p> -->
+            <v-btn v-if="!isNextQuestion" color="#ffc0cb"  v-on:click="ansQuestion">回答</v-btn>
           </div>
           <div v-if="isNextQuestion">
             <v-tabs
@@ -60,11 +132,24 @@
               dark
               slider-color="yellow"
             >
-              <v-tab>回答</v-tab>
+              <v-tab>正解</v-tab>
               <v-tab>score一覧</v-tab>
               <v-tab-item>
-                <p>正解</p>
-                <p>{{QuizAppProgressStatuses[0].num}}. {{correctAnswer}}</p>
+              <v-card>
+                <v-img
+                  :src="ansImgPath"
+                  height="300px"
+                >
+                </v-img>
+              <v-card-title primary-title>
+                <div>
+                  <h3 class="headline mb-0">{{QuizAppProgressStatuses[0].num}}. {{correctAnswer}}</h3>
+                  <div></div>
+                </div>
+              </v-card-title>
+              </v-card>
+                <!-- <p>正解</p>
+                <p>{{QuizAppProgressStatuses[0].num}}. {{correctAnswer}}</p> -->
               </v-tab-item>
               <v-tab-item>
                 <v-data-table
@@ -217,6 +302,15 @@
         } catch(e) {
           return 'error'
         }
+      },
+      ansImgPath() {
+        try{
+          let num = this.QuizAppProgressStatuses[0].num
+          let id = this.QuizAppQuestions[num-1].id
+          return `https://s3-ap-northeast-1.amazonaws.com/quizapp-img/${id}.jpg`
+        } catch(e) {
+          return 'error'
+        }
       }
     },
     async mounted () {
@@ -330,5 +424,13 @@ h1 {
 }
 .title {
   font-family: 'Great Vibes', cursive !important;
+}
+
+.sentence {
+  font-size: 2.5rem;
+}
+
+p {
+  color:rgba(0,0,0,0.54);
 }
 </style>
